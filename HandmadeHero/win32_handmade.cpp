@@ -40,7 +40,7 @@ struct win32_window_dimension
 };
 
 
-global bool32 Running;
+global bool32 GlobalRunning;
 global win32_offscreen_buffer GlobalBackbuffer;
 global LPDIRECTSOUNDBUFFER GlobalSecondaryBuffer;
 
@@ -252,7 +252,7 @@ Win32MainWindowCallback(HWND Window,
 		
 		case WM_DESTROY:
 		{
-			Running = false;
+			GlobalRunning = false;
 		} break;
 
 		case WM_SYSKEYDOWN:
@@ -308,13 +308,13 @@ Win32MainWindowCallback(HWND Window,
 			bool32 AltKeyWasDown = ((LParam & (1 << 29)));
 			if((VKCode == VK_F4) && AltKeyWasDown)
 			{
-				Running = false;
+				GlobalRunning = false;
 			}
 		} break;
 
 		case WM_CLOSE:
 		{
-			Running = false;
+			GlobalRunning = false;
 		} break;
 
 		case WM_ACTIVATEAPP:
@@ -411,6 +411,10 @@ WinMain(HINSTANCE Instance,
 		LPSTR CommandLine,
 		int ShowCode)
 {
+	LARGE_INTEGER PerfCountFrequencyResult;
+	QueryPerformanceFrequency(&PerfCountFrequencyResult);
+	int64 PerfCountFrequency = PerfCountFrequencyResult.QuadPart;
+
 	Win32LoadXInput();
 
 	WNDCLASSA WindowClass = {};
@@ -454,15 +458,21 @@ WinMain(HINSTANCE Instance,
 			Win32FillSoundBuffer(&SoundOutput, 0, SoundOutput.SecondaryBufferSize);
 			GlobalSecondaryBuffer->Play(0, 0, DSBPLAY_LOOPING);
 
-			Running = true;
-			while(Running)
+			GlobalRunning = true;
+
+			LARGE_INTEGER LastCounter;
+			QueryPerformanceCounter(&LastCounter);
+
+			uint64 LastCycleCount = __rdtsc();
+
+			while(GlobalRunning)
 			{
 				MSG Message;
 				while(PeekMessage(&Message, 0, 0, 0, PM_REMOVE))
 				{
 					if(Message.message == WM_QUIT)
 					{
-						Running = false;
+						GlobalRunning = false;
 					}
 
 					TranslateMessage(&Message);
@@ -528,6 +538,25 @@ WinMain(HINSTANCE Instance,
 				win32_window_dimension Dimension = Win32GetWindowDimension(Window);
 				Win32DisplayBufferInWindow(&GlobalBackbuffer, DeviceContext,
 					Dimension.Width, Dimension.Height);
+
+				uint64 EndCycleCount = __rdtsc();
+
+
+				LARGE_INTEGER EndCounter;
+				QueryPerformanceCounter(&EndCounter);
+
+				uint64 CyclesElapsed = EndCycleCount - LastCycleCount;
+				int64 CounterElapsed = (EndCounter.QuadPart - LastCounter.QuadPart);
+				int64 MSPerFrame = ((1000 * CounterElapsed) / PerfCountFrequency);
+				int32 FPS = PerfCountFrequency / CounterElapsed;
+				int32 MCPF = (int32)(CyclesElapsed / (1000 * 1000));
+
+				char Buffer[256];
+				wsprintf(Buffer, "%dms\f, %df/s, %dmc/f\n", MSPerFrame, FPS, MCPF);
+				OutputDebugStringA(Buffer);
+
+				LastCounter = EndCounter;
+				LastCycleCount = EndCycleCount;
 			}
 		}
 		else
