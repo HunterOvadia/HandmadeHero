@@ -1,6 +1,7 @@
 #include <windows.h>
 #include <stdint.h>
 #include <Xinput.h>
+#include <dsound.h>
 
 #define internal	static
 #define global		static
@@ -10,6 +11,7 @@ typedef int8_t	int8;
 typedef int16_t int16;
 typedef int32_t int32;
 typedef int64_t int64;
+typedef int32	bool32;
 
 typedef uint8_t uint8;
 typedef uint16_t uint16;
@@ -40,7 +42,7 @@ global win32_offscreen_buffer GlobalBackbuffer;
 typedef X_INPUT_GET_STATE(x_input_get_state);
 X_INPUT_GET_STATE(XInputGetStateStub)
 {
-	return 0;
+	return(ERROR_DEVICE_NOT_CONNECTED);
 }
 global x_input_get_state *XInputGetState_ = XInputGetStateStub;
 #define XInputGetState XInputGetState_
@@ -49,23 +51,106 @@ global x_input_get_state *XInputGetState_ = XInputGetStateStub;
 typedef X_INPUT_SET_STATE(x_input_set_state);
 X_INPUT_SET_STATE(XInputSetStateStub)
 {
-	return 0;
+	return(ERROR_DEVICE_NOT_CONNECTED);
 }
 global x_input_set_state *XInputSetState_ = XInputSetStateStub;
 #define XInputSetState XInputSetState_
 
+#define DIRECT_SOUND_CREATE(name) HRESULT WINAPI name(LPGUID lpGuid, LPDIRECTSOUND* ppDS, LPUNKNOWN pUnkOuter)
+typedef DIRECT_SOUND_CREATE(direct_sound_create);
 
 internal void
 Win32LoadXInput(void)
 {
-	HMODULE XInputLibrary = LoadLibrary("xinput1_3.dll");
+	HMODULE XInputLibrary = LoadLibraryA("xinput1_4.dll");
+	if(!XInputLibrary)
+	{
+		XInputLibrary = LoadLibraryA("xinput1_3.dll");
+	}
+
 	if(XInputLibrary)
 	{
 		XInputGetState = (x_input_get_state *)GetProcAddress(XInputLibrary, "XInputGetState");
+		if (!XInputGetState) { XInputGetState = XInputGetStateStub; }
+
 		XInputSetState = (x_input_set_state *)GetProcAddress(XInputLibrary, "XInputSetState");
+		if (!XInputSetState) { XInputSetState = XInputSetStateStub; }
+	}
+	else
+	{
+		// TODO(hunter): Logging
 	}
 }
 
+internal void
+Win32InitDSound(HWND Window, int32 SamplesPerSecond, int32 BufferSize)
+{
+	// Load Library
+	HMODULE DSoundLibrary = LoadLibraryA("dsound.dll");
+	if(DSoundLibrary)
+	{
+		direct_sound_create *DirectSoundCreate = (direct_sound_create *)GetProcAddress(DSoundLibrary, "DirectSoundCreate");
+		
+		LPDIRECTSOUND DirectSound;
+		if(DirectSoundCreate && SUCCEEDED(DirectSoundCreate(0, &DirectSound, 0)))
+		{
+			WAVEFORMATEX WaveFormat = { };
+			WaveFormat.wFormatTag = WAVE_FORMAT_PCM;
+			WaveFormat.nChannels = 2;
+			WaveFormat.nSamplesPerSec = SamplesPerSecond;
+			WaveFormat.wBitsPerSample = 16;
+			WaveFormat.nBlockAlign = (WaveFormat.nChannels * WaveFormat.wBitsPerSample) / 8;
+			WaveFormat.nAvgBytesPerSec = (WaveFormat.nSamplesPerSec * WaveFormat.nBlockAlign);
+			WaveFormat.cbSize = 0;
+
+			if(SUCCEEDED(DirectSound->SetCooperativeLevel(Window, DSSCL_PRIORITY)))
+			{
+				DSBUFFERDESC BufferDescription = { };
+				BufferDescription.dwSize = sizeof(BufferDescription);
+				BufferDescription.dwFlags = DSBCAPS_PRIMARYBUFFER;
+
+				LPDIRECTSOUNDBUFFER PrimaryBuffer;
+				if(SUCCEEDED(DirectSound->CreateSoundBuffer(&BufferDescription, &PrimaryBuffer, 0)))
+				{					
+					if(SUCCEEDED(PrimaryBuffer->SetFormat(&WaveFormat)))
+					{
+					}
+					else
+					{
+						// TODO(hunter): Logging
+					}
+				}
+				else
+				{
+					// TODO(hunter): Logging
+				}
+			}
+			else
+			{
+				// TODO(hunter): Logging
+			}
+
+			DSBUFFERDESC BufferDescription = { };
+			BufferDescription.dwSize = sizeof(BufferDescription);
+			BufferDescription.dwFlags = 0;
+			BufferDescription.dwBufferBytes = BufferSize;
+			BufferDescription.lpwfxFormat = &WaveFormat;
+
+			LPDIRECTSOUNDBUFFER SecondaryBuffer;
+			if (SUCCEEDED(DirectSound->CreateSoundBuffer(&BufferDescription, &SecondaryBuffer, 0)))
+			{
+			}
+		}
+		else
+		{
+			// TODO(hunter): Logging
+		}
+	}
+	else
+	{
+		// TODO(hunter): Logging
+	}
+}
 
 internal win32_window_dimension
 Win32GetWindowDimension(HWND Window)
@@ -164,45 +249,54 @@ Win32MainWindowCallback(HWND Window,
 		case WM_KEYUP:
 		{
 			uint32 VKCode = WParam;
-			bool WasDown = ((LParam & (1 << 30)) != 0);
-			bool IsDown = ((LParam & (1 << 31)) == 0);
+			bool32 WasDown = ((LParam & (1 << 30)) != 0);
+			bool32 IsDown = ((LParam & (1 << 31)) == 0);
 
-			if(VKCode == 'W')
+			if(WasDown != IsDown)
 			{
+				if (VKCode == 'W')
+				{
+				}
+				else if (VKCode == 'A')
+				{
+				}
+				else if (VKCode == 'S')
+				{
+				}
+				else if (VKCode == 'D')
+				{
+				}
+				else if (VKCode == 'Q')
+				{
+				}
+				else if (VKCode == 'E')
+				{
+				}
+				else if (VKCode == VK_UP)
+				{
+				}
+				else if (VKCode == VK_LEFT)
+				{
+				}
+				else if (VKCode == VK_DOWN)
+				{
+				}
+				else if (VKCode == VK_RIGHT)
+				{
+				}
+				else if (VKCode == VK_ESCAPE)
+				{
+
+				}
+				else if (VKCode == VK_SPACE)
+				{
+				}
 			}
-			else if (VKCode == 'A')
+
+			bool32 AltKeyWasDown = ((LParam & (1 << 29)));
+			if((VKCode == VK_F4) && AltKeyWasDown)
 			{
-			}
-			else if (VKCode == 'S')
-			{
-			}
-			else if (VKCode == 'D')
-			{
-			}
-			else if (VKCode == 'Q')
-			{
-			}
-			else if (VKCode == 'E')
-			{
-			}
-			else if (VKCode == VK_UP)
-			{
-			}
-			else if (VKCode == VK_LEFT)
-			{
-			}
-			else if (VKCode == VK_DOWN)
-			{
-			}
-			else if (VKCode == VK_RIGHT)
-			{
-			}
-			else if (VKCode == VK_ESCAPE)
-			{
-				
-			}
-			else if (VKCode == VK_SPACE)
-			{
+				Running = false;
 			}
 		} break;
 
@@ -279,6 +373,8 @@ WinMain(HINSTANCE Instance,
 			int XOffset = 0;
 			int YOffset = 0;
 
+			Win32InitDSound(Window, 48000, 48000 * sizeof(int16) * 2);
+
 			Running = true;
 			while(Running)
 			{
@@ -293,7 +389,6 @@ WinMain(HINSTANCE Instance,
 					TranslateMessage(&Message);
 					DispatchMessage(&Message);
 				}
-
 
 				for(DWORD ControllerIndex = 0; ControllerIndex < XUSER_MAX_COUNT; ++ControllerIndex)
 				{
@@ -326,7 +421,7 @@ WinMain(HINSTANCE Instance,
 					}
 					else
 					{
-
+						// TODO(hunter): Logging
 					}
 				}
 
