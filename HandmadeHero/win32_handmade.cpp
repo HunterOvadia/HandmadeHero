@@ -1,7 +1,56 @@
 #include <windows.h>
 
+#define internal	static
+#define global		static
+#define local		static
+
+global bool Running;
+global BITMAPINFO BitmapInfo;
+global void *BitmapMemory;
+global HBITMAP BitmapHandle;
+global HDC BitmapDeviceContext;
+
+internal void
+Win32ResizeDIBSection(int Width, int Height)
+{
+	if(BitmapHandle)
+	{
+		DeleteObject(BitmapHandle);
+	}
+	
+	if(!BitmapDeviceContext)
+	{
+		BitmapDeviceContext = CreateCompatibleDC(0);
+	}
+
+	BitmapInfo.bmiHeader.biSize = sizeof(BitmapInfo.bmiHeader);
+	BitmapInfo.bmiHeader.biWidth = Width;
+	BitmapInfo.bmiHeader.biHeight = Height;
+	BitmapInfo.bmiHeader.biPlanes = 1;
+	BitmapInfo.bmiHeader.biBitCount = 32;
+	BitmapInfo.bmiHeader.biCompression = BI_RGB;
+
+
+	BitmapHandle = CreateDIBSection(
+		BitmapDeviceContext, &BitmapInfo,
+		DIB_RGB_COLORS,
+		&BitmapMemory,
+		0, 0);
+}
+
+internal void
+Win32UpdateWindow(HDC DeviceContext, int X, int Y, int Width, int Height)
+{
+	StretchDIBits(DeviceContext, 
+				  X, Y, Width, Height,
+				  X, Y, Width, Height,
+				  BitmapMemory, &BitmapInfo, 
+				  DIB_RGB_COLORS, SRCCOPY);
+}
+
+
 LRESULT CALLBACK 
-MainWindowCallback(HWND Window,
+Win32MainWindowCallback(HWND Window,
 				   UINT Message,
 				   WPARAM WParam,
 				   LPARAM LParam)
@@ -12,19 +61,21 @@ MainWindowCallback(HWND Window,
 	{
 		case WM_SIZE:
 		{
-			OutputDebugStringA("WM_SIZE\n");
+			RECT ClientRect;		
+			GetClientRect(Window, &ClientRect);
+			int Width = ClientRect.right - ClientRect.left;
+			int Height = ClientRect.bottom - ClientRect.top;
+			Win32ResizeDIBSection(Width, Height);
 		} break;
 		
 		case WM_DESTROY:
 		{
-			OutputDebugStringA("WM_DESTROY\n");
-
+			Running = false;
 		} break;
 
 		case WM_CLOSE:
 		{
-			OutputDebugStringA("WM_CLOSE\n");
-
+			Running = false;
 		} break;
 
 		case WM_ACTIVATEAPP:
@@ -37,22 +88,14 @@ MainWindowCallback(HWND Window,
 		{
 			PAINTSTRUCT Paint;
 			HDC DeviceContext = BeginPaint(Window, &Paint);
+
 			int X = Paint.rcPaint.left;
 			int Y = Paint.rcPaint.top;
 			int Height = (Paint.rcPaint.bottom - Y);
 			int Width = (Paint.rcPaint.right - X);
 
-			static DWORD Operation = WHITENESS;
+			Win32UpdateWindow(DeviceContext, X, Y, Width, Height);
 
-			PatBlt(DeviceContext, X, Y, Width, Height, Operation);
-			if(Operation == WHITENESS)
-			{
-				Operation = BLACKNESS;
-			}
-			else
-			{
-				Operation = WHITENESS;
-			}
 			EndPaint(Window, &Paint);
 		} break;
 
@@ -75,7 +118,7 @@ WinMain(HINSTANCE Instance,
 	WNDCLASS WindowClass = {};
 
 	WindowClass.style = (CS_OWNDC | CS_HREDRAW | CS_VREDRAW);
-	WindowClass.lpfnWndProc = MainWindowCallback;
+	WindowClass.lpfnWndProc = Win32MainWindowCallback;
 	WindowClass.hInstance = Instance;
 	//WindowClass.hIcon = ;
 	WindowClass.lpszClassName = "HandmadeHeroWindowClass";
@@ -93,9 +136,10 @@ WinMain(HINSTANCE Instance,
 
 		if(WindowHandle)
 		{
-			MSG Message;
-			for(;;)
+			Running = true;
+			while(Running)
 			{
+				MSG Message;
 				BOOL MessageResult = GetMessage(&Message, 0, 0, 0);
 				if(MessageResult > 0)
 				{
