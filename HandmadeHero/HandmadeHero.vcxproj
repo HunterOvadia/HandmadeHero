@@ -86,7 +86,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <PreprocessorDefinitions>HANDMADE_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <CompileAs>Default</CompileAs>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
       <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>

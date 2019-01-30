@@ -1,5 +1,9 @@
 #if !defined(HANDMADE_H)
 
+#define HANDMADE_WIN32		1
+#define HANDMADE_SLOW		1
+#define HANDMADE_INTERNAL	1
+
 #include <stdint.h>
 #include <math.h>
 
@@ -23,7 +27,17 @@ typedef uint64_t	uint64;
 typedef float		real32;
 typedef double		real64;
 
+#if HANDMADE_SLOW
+#define Assert(Expression) if(!(Expression)) { *(int *)0 = 0; }
+#else
+#define Assert(Expression)
+#endif
+
 #define ArrayCount(Array) (sizeof(Array) / sizeof((Array)[0]))
+#define Kilobytes(n) ((n) * 1024)
+#define Megabytes(n) (Kilobytes(n) * 1024)
+#define Gigabytes(n) (Megabytes(n) * 1024)
+#define Terabytes(n) (Gigabytes(n) * 1024)
 
 struct game_offscreen_buffer
 {
@@ -86,9 +100,30 @@ struct game_input
 };
 
 
-internal void GameUpdateAndRender(game_input* Input,
+struct game_memory
+{
+	bool32 IsInitialized;
+
+	uint64 PermanentStorageSize;
+	void *PermanentStorage;
+
+	uint64 TransientStorageSize;
+	void *TransientStorage;
+};
+
+
+internal void GameUpdateAndRender(game_memory *Memory,
+								  game_input *Input,
 								  game_offscreen_buffer *Buffer,
 								  game_sound_output_buffer *SoundBuffer);
+
+
+struct game_state
+{
+	int BlueOffset;
+	int GreenOffset;
+	int ToneHz;
+};
 
 #define HANDMADE_H
 #endif
