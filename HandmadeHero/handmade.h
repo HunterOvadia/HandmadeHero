@@ -1,47 +1,45 @@
 #if !defined(HANDMADE_H)
 
-#define HANDMADE_WIN32		1
-#define HANDMADE_SLOW		1
-#define HANDMADE_INTERNAL	1
-
-#include <stdint.h>
 #include <math.h>
+#include <stdint.h>
 
-#define internal	static
+#define HANDMADE_INTERNAL 1
+
+#define internal      static
 #define global		static
-#define local		static
+#define local	 	static
 
-#define Pi32		3.14159265359f
+#define Pi32		 3.14159265359f
 
-typedef int8_t		int8;
+typedef int8_t		 int8;
 typedef int16_t		int16;
 typedef int32_t		int32;
 typedef int64_t		int64;
-typedef int32		bool32;
+typedef int32		  bool32;
 
 typedef uint8_t		uint8;
-typedef uint16_t	uint16;
-typedef uint32_t	uint32;
-typedef uint64_t	uint64;
+typedef uint16_t   	uint16;
+typedef uint32_t	   uint32;
+typedef uint64_t	   uint64;
 
-typedef float		real32;
-typedef double		real64;
+typedef float		  real32;
+typedef double		 real64;
 
-#if HANDMADE_SLOW
+#ifdef HANDMADE_SLOW
 #define Assert(Expression) if(!(Expression)) { *(int *)0 = 0; }
 #else
 #define Assert(Expression)
 #endif
 
-#if HANDMADE_INTERNAL
+#ifdef HANDMADE_INTERNAL
 struct debug_read_file_result
 {
 	uint32 ContentSize;
 	void *Contents;
 };
-internal debug_read_file_result DEBUGPlatformReadEntireFile(char *Filename);
-internal void DEBUGPlatformFreeFileMemory(void *Memory);
-internal bool32 DEBUGPlatformWriteEntireFile(char *Filename, uint64 MemorySize, void *Memory);
+debug_read_file_result DEBUGPlatformReadEntireFile(char *Filename);
+void DEBUGPlatformFreeFileMemory(void *Memory);
+bool32 DEBUGPlatformWriteEntireFile(char *Filename, uint64 MemorySize, void *Memory);
 #endif
 
 #define ArrayCount(Array) (sizeof(Array) / sizeof((Array)[0]))
@@ -82,21 +80,21 @@ struct game_button_state
 
 struct game_controller_input
 {
-
+    
 	bool32 IsAnalog;
-
+    
 	real32 StartX;
 	real32 StartY;
-
+    
 	real32 MinX;
 	real32 MinY;
-
+    
 	real32 MaxX;
 	real32 MaxY;
-
+    
 	real32 EndY;
 	real32 EndX;
-
+    
 	union
 	{
 		game_button_state Buttons[6];
@@ -110,7 +108,7 @@ struct game_controller_input
 			game_button_state RightShoulder;
 		};
 	};
-
+    
 };
 
 
@@ -123,10 +121,10 @@ struct game_input
 struct game_memory
 {
 	bool32 IsInitialized;
-
+    
 	uint64 PermanentStorageSize;
 	void *PermanentStorage;
-
+    
 	uint64 TransientStorageSize;
 	void *TransientStorage;
 };
