@@ -33,11 +33,31 @@ typedef double		real64;
 #define Assert(Expression)
 #endif
 
+#if HANDMADE_INTERNAL
+struct debug_read_file_result
+{
+	uint32 ContentSize;
+	void *Contents;
+};
+internal debug_read_file_result DEBUGPlatformReadEntireFile(char *Filename);
+internal void DEBUGPlatformFreeFileMemory(void *Memory);
+internal bool32 DEBUGPlatformWriteEntireFile(char *Filename, uint64 MemorySize, void *Memory);
+#endif
+
 #define ArrayCount(Array) (sizeof(Array) / sizeof((Array)[0]))
 #define Kilobytes(n) ((n) * 1024)
 #define Megabytes(n) (Kilobytes(n) * 1024)
 #define Gigabytes(n) (Megabytes(n) * 1024)
 #define Terabytes(n) (Gigabytes(n) * 1024)
+
+inline uint32
+SafeTruncateUInt64(uint64 Value)
+{
+	Assert(Value <= 0xFFFFFFFF);
+	uint32 Result = (uint32)Value;
+	return(Result);
+}
+
 
 struct game_offscreen_buffer
 {
@@ -116,8 +136,6 @@ internal void GameUpdateAndRender(game_memory *Memory,
 								  game_input *Input,
 								  game_offscreen_buffer *Buffer,
 								  game_sound_output_buffer *SoundBuffer);
-
-
 struct game_state
 {
 	int BlueOffset;

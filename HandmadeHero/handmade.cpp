@@ -52,6 +52,14 @@ GameUpdateAndRender(game_memory *Memory,
 	game_state *GameState = (game_state *)Memory->PermanentStorage;
 	if(!Memory->IsInitialized)
 	{
+		char *Filename = (char *)"STring";
+
+		void *BitmapMemory = DEBUGPlatformReadEntireFile(Filename);
+		if(BitmapMemory)
+		{
+			DEBUGPlatformFreeFileMemory(BitmapMemory);
+		}
+
 		GameState->ToneHz = 256; 
 
 		Memory->IsInitialized = true;

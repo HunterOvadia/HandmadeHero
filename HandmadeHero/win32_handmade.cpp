@@ -1,3 +1,6 @@
+#include <math.h>
+#include <stdint.h>
+
 #include "handmade.h"
 #include "handmade.cpp"
 
@@ -33,6 +36,86 @@ global x_input_set_state *XInputSetState_ = XInputSetStateStub;
 
 #define DIRECT_SOUND_CREATE(name) HRESULT WINAPI name(LPGUID lpGuid, LPDIRECTSOUND* ppDS, LPUNKNOWN pUnkOuter)
 typedef DIRECT_SOUND_CREATE(direct_sound_create);
+
+
+internal debug_read_file_result
+DEBUGPlatformReadEntireFile(char *Filename) 
+{
+	debug_read_file_result Result = {};
+
+	HANDLE FileHandle = CreateFileA(Filename, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0);
+	if(FileHandle != INVALID_HANDLE_VALUE)
+	{
+		LARGE_INTEGER FileSize;
+		if(GetFileSizeEx(FileHandle, &FileSize))
+		{
+			uint32 FileSize32 = SafeTruncateUInt64(FileSize.QuadPart);
+			Result.Contents = VirtualAlloc(0, FileSize.QuadPart, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+			if(Result.Contents)
+			{
+				DWORD BytesRead;
+				if(ReadFile(FileHandle, Result.Contents, FileSize32, &BytesRead, 0) && (FileSize32 == BytesRead))
+				{
+					Result.ContentSize = FileSize32;
+				}
+				else
+				{
+					DEBUGPlatformFreeFileMemory(Result.Contents);
+					Result.Contents = 0;
+				}
+			}
+			else
+			{
+				// TODO(hunter): Logging
+			}
+		}
+		else
+		{
+			// TODO(hunter): Logging
+		}
+
+		CloseHandle(FileHandle);
+	}
+	else
+	{
+		// TODO(hunter): Logging
+	}
+
+	return(Result);
+}
+
+internal void DEBUGPlatformFreeFileMemory(void *Memory)
+{
+	if(Memory)
+	{
+		VirtualFree(Memory, 0, MEM_RELEASE);
+	}
+}
+
+internal bool32 
+DEBUGPlatformWriteEntireFile(char *Filename, uint64 MemorySize, void *Memory)
+{
+	bool32 Result = false;
+
+	HANDLE FileHandle = CreateFileA(Filename, GENERIC_WRITE, 0, 0, CREATE_ALWAYS, 0, 0);
+	if (FileHandle != INVALID_HANDLE_VALUE)
+	{
+		DWORD BytesWritten;
+		if(WriteFile(FileHandle, Memory, MemorySize, &BytesWritten, 0))
+		{
+			Result = (BytesWritten == MemorySize);
+		}
+		else
+		{
+			// TODO(hunter): Logging
+		}
+
+		CloseHandle(FileHandle);
+	}
+
+	return(Result);
+}
+
 
 internal void
 Win32LoadXInput(void)
@@ -440,7 +523,7 @@ WinMain(HINSTANCE Instance,
 
 			game_memory GameMemory = {};
 			GameMemory.PermanentStorageSize = Megabytes(64);
-			GameMemory.TransientStorageSize = Gigabytes((uint64)4);
+			GameMemory.TransientStorageSize = Gigabytes(1);
 
 			uint64 TotalSize = GameMemory.PermanentStorageSize + GameMemory.TransientStorageSize;
 			GameMemory.PermanentStorage = VirtualAlloc(BaseAddress, TotalSize,  MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
