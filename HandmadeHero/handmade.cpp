@@ -9,7 +9,7 @@ GameOutputSound(game_state* GameState, game_sound_output_buffer *SoundBuffer, in
 	int16 *SampleOut = SoundBuffer->Samples;
 	for (int SampleIndex = 0; SampleIndex < SoundBuffer->SampleCount; ++SampleIndex)
 	{
-#if 0
+#if 1
 		real32 SineValue = sinf(GameState->tSine);
 		int16 SampleValue = (int16)(SineValue * ToneVolume);
 #else
@@ -48,21 +48,21 @@ RenderWeirdGradient(game_offscreen_buffer *Buffer, int XOffset, int YOffset)
 internal void
 RenderPlayer(game_offscreen_buffer *Buffer, int PlayerX, int PlayerY)
 {
-	uint8 *EndOfBuffer = (uint8 *)Buffer->Memory + Buffer->BytesPerPixel * Buffer->Pitch * Buffer->Height;
+	uint8 *EndOfBuffer = ((uint8 *)Buffer->Memory) + (Buffer->Pitch * Buffer->Height);
 	uint32 Color = 0xFFFFFFF;
 	int Top = PlayerY;
 	int Bottom = PlayerY + 10;
 	for(int X = PlayerX; X < PlayerX + 10; ++X)
 	{
-		uint8 *Pixel = ((uint8 *)Buffer->Memory + X * Buffer->BytesPerPixel + Top * Buffer->Pitch);
+		uint8 *Pixel = (((uint8 *)Buffer->Memory) + X * Buffer->BytesPerPixel + Top * Buffer->Pitch);
 
 		for(int Y = Top; Y < Bottom; ++Y)
 		{
-			if(Pixel >= Buffer->Memory && ((Pixel + Buffer->BytesPerPixel) < EndOfBuffer))
+			if((Pixel >= Buffer->Memory) && ((Pixel + 4) <= EndOfBuffer))
 			{
 				*(uint32 *)Pixel = Color;
-				Pixel += Buffer->Pitch;
 			}
+			Pixel += Buffer->Pitch;
 		}
 	}
 }
@@ -77,11 +77,11 @@ extern "C" GAME_UPDATE_AND_RENDER(GameUpdateAndRender)
 	{
 		char *Filename = __FILE__;
         
-        debug_read_file_result File = Memory->DEBUGPlatformReadEntireFile(Filename);
+        debug_read_file_result File = Memory->DEBUGPlatformReadEntireFile(Thread, Filename);
 		if(File.Contents)
 		{
-			Memory->DEBUGPlatformWriteEntireFile("test.out", File.ContentSize, File.Contents);
-			Memory->DEBUGPlatformFreeFileMemory(File.Contents);
+			Memory->DEBUGPlatformWriteEntireFile(Thread, "test.out", File.ContentSize, File.Contents);
+			Memory->DEBUGPlatformFreeFileMemory(Thread, File.Contents);
 		}   
 
 		GameState->ToneHz = 256.0f; 
@@ -134,6 +134,16 @@ extern "C" GAME_UPDATE_AND_RENDER(GameUpdateAndRender)
 
 	RenderWeirdGradient(Buffer, GameState->BlueOffset, GameState->GreenOffset);
 	RenderPlayer(Buffer, GameState->PlayerX, GameState->PlayerY);
+	RenderPlayer(Buffer, Input->MouseX, Input->MouseY);
+
+	for(int ButtonIndex = 0; ButtonIndex < ArrayCount(Input->MouseButtons); ++ButtonIndex)
+	{
+		if(Input->MouseButtons[ButtonIndex].EndedDown)
+		{
+			RenderPlayer(Buffer, 10 + (20 * ButtonIndex), 10);
+		}
+	}
+	RenderPlayer(Buffer, Input->MouseX, Input->MouseY);
 }
 
 extern "C" GAME_GET_SOUND_SAMPLES(GameGetSoundSamples)
