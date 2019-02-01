@@ -48,6 +48,10 @@ bool32 DEBUGPlatformWriteEntireFile(char *Filename, uint64 MemorySize, void *Mem
 #define Gigabytes(n) (Megabytes(n) * 1024)
 #define Terabytes(n) (Gigabytes(n) * 1024)
 
+
+#define MonitorRefreshHz (60)
+#define GameUpdateHz (MonitorRefreshHz / 2)
+
 inline uint32
 SafeTruncateUInt64(uint64 Value)
 {
@@ -136,10 +140,9 @@ struct game_memory
 };
 
 
-internal void GameUpdateAndRender(game_memory *Memory,
-								  game_input *Input,
-								  game_offscreen_buffer *Buffer,
-								  game_sound_output_buffer *SoundBuffer);
+internal void GameUpdateAndRender(game_memory *Memory, game_offscreen_buffer *Buffer, game_input *Input);\
+internal void GameGetSoundSamples(game_memory *Memory, game_sound_output_buffer* SoundOutput);
+
 struct game_state
 {
 	int BlueOffset;
