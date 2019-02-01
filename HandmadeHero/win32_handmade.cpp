@@ -40,7 +40,7 @@ typedef DIRECT_SOUND_CREATE(direct_sound_create);
 internal void
 CatString(size_t SourceACount, char *SourceA, size_t SourceBCount, char *SourceB, size_t DestCount, char *Dest)
 {
-	Assert(SourceACount + SourceBCount < DestCount);
+	Assert((SourceACount + SourceBCount) < DestCount);
 	for (int Index = 0; Index < SourceACount; ++Index)
 	{
 		*Dest++ = *SourceA++;
@@ -994,6 +994,7 @@ int CALLBACK WinMain(HINSTANCE Instance,
 				game_input Input[2] = { };
 				game_input *NewInput = &Input[0];
 				game_input *OldInput = &Input[1];
+				NewInput->SecondsToAdvanceOverUpdate = TargetSecondsPerFrame;
 
 				LARGE_INTEGER LastCounter = Win32GetWallClock();
 				LARGE_INTEGER FlipWallClock = Win32GetWallClock();

@@ -1,5 +1,6 @@
 @echo off
 
+
 IF NOT EXIST build mkdir build
 pushd build
 set CommonCompilerFlags=/MT /nologo /Gm- /GR- /EHa /Od /Oi /W4 /wd4201 /wd4100 /wd4189 /wd4505 /DHANDMADE_INTERNAL=1 /DHANDMADE_SLOW=1 /Z7 
