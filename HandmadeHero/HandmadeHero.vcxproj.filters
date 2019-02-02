@@ -32,5 +32,8 @@
     <ClInclude Include="win32_handmade.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="handmade_platform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
