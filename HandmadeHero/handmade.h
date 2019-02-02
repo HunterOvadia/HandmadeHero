@@ -123,8 +123,6 @@ struct game_controller_input
 
 			game_button_state Start;
 			game_button_state Back;
-
-			game_button_state Terminator;
 		};
 	};   
 };
@@ -138,14 +136,14 @@ struct game_input
 	int32 MouseZ;
 
 
-	real32 SecondsToAdvanceOverUpdate;
+	real32 dtForFrame;
+
 	game_controller_input Controllers[5];
 };
 
-inline game_controller_input *GetController(game_input *Input, int unsigned ControllerIndex)
+inline game_controller_input *GetController(game_input *Input, unsigned int ControllerIndex)
 {
 	Assert(ControllerIndex < ArrayCount(Input->Controllers));
-
 	game_controller_input *Result = &Input->Controllers[ControllerIndex];
 	return(Result);
 }
@@ -176,7 +174,8 @@ typedef GAME_GET_SOUND_SAMPLES(game_get_sound_samples);
 
 struct game_state
 {
-
+	real32 PlayerX;
+	real32 PlayerY;
 };
 
 #define HANDMADE_H
