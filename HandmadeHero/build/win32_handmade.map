@@ -1,6 +1,6 @@
  win32_handmade
 
- Timestamp is 5c55e57b (Sat Feb  2 13:46:19 2019)
+ Timestamp is 5c55f730 (Sat Feb  2 15:01:52 2019)
 
  Preferred load address is 0000000140000000
 
@@ -2940,22 +2940,22 @@
  0002:00000368       ?pre_cpp_initializer@@3P6AXXZEA 000000014003c368     LIBCMTD:exe_winmain.obj
  0002:00000380       ?pre_c_initializer@@3P6AHXZEA 000000014003c380     LIBCMTD:exe_winmain.obj
  0002:00000388       ?post_pgo_initializer@@3P6AHXZEA 000000014003c388     LIBCMTD:exe_winmain.obj
- 0002:000003f0       $SG94516                   000000014003c3f0     win32_handmade.obj
- 0002:00000408       $SG94517                   000000014003c408     win32_handmade.obj
- 0002:00000420       $SG94529                   000000014003c420     win32_handmade.obj
- 0002:00000430       $SG94531                   000000014003c430     win32_handmade.obj
- 0002:00000440       $SG94533                   000000014003c440     win32_handmade.obj
- 0002:00000450       $SG94536                   000000014003c450     win32_handmade.obj
- 0002:00000460       $SG94538                   000000014003c460     win32_handmade.obj
- 0002:00000470       $SG94558                   000000014003c470     win32_handmade.obj
- 0002:00000480       $SG94561                   000000014003c480     win32_handmade.obj
- 0002:00000494       $SG94731                   000000014003c494     win32_handmade.obj
- 0002:0000049c       $SG94732                   000000014003c49c     win32_handmade.obj
- 0002:000004a8       $SG94733                   000000014003c4a8     win32_handmade.obj
- 0002:000004c0       $SG94983                   000000014003c4c0     win32_handmade.obj
- 0002:000004d0       $SG94984                   000000014003c4d0     win32_handmade.obj
- 0002:000004e8       $SG94985                   000000014003c4e8     win32_handmade.obj
- 0002:00000500       $SG94988                   000000014003c500     win32_handmade.obj
+ 0002:000003f0       $SG94550                   000000014003c3f0     win32_handmade.obj
+ 0002:00000408       $SG94551                   000000014003c408     win32_handmade.obj
+ 0002:00000420       $SG94563                   000000014003c420     win32_handmade.obj
+ 0002:00000430       $SG94565                   000000014003c430     win32_handmade.obj
+ 0002:00000440       $SG94567                   000000014003c440     win32_handmade.obj
+ 0002:00000450       $SG94570                   000000014003c450     win32_handmade.obj
+ 0002:00000460       $SG94572                   000000014003c460     win32_handmade.obj
+ 0002:00000470       $SG94592                   000000014003c470     win32_handmade.obj
+ 0002:00000480       $SG94595                   000000014003c480     win32_handmade.obj
+ 0002:00000494       $SG94765                   000000014003c494     win32_handmade.obj
+ 0002:0000049c       $SG94766                   000000014003c49c     win32_handmade.obj
+ 0002:000004a8       $SG94767                   000000014003c4a8     win32_handmade.obj
+ 0002:000004c0       $SG95017                   000000014003c4c0     win32_handmade.obj
+ 0002:000004d0       $SG95018                   000000014003c4d0     win32_handmade.obj
+ 0002:000004e8       $SG95019                   000000014003c4e8     win32_handmade.obj
+ 0002:00000500       $SG95022                   000000014003c500     win32_handmade.obj
  0002:00000540       GS_ExceptionPointers       000000014003c540     LIBCMTD:gs_report.obj
  0002:000005b0       ?module_names@?A0xa3b92138@@3QBQEB_WB 000000014003c5b0     libvcruntimed:winapi_downlevel.obj
  0002:00000840       ?candidate_modules@?1??try_get_FlsAlloc@@YAP6AKP6AXPEAX@Z@ZXZ@4QBW4module_id@?A0xa3b92138@@B 000000014003c840     libvcruntimed:winapi_downlevel.obj
