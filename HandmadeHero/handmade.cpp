@@ -82,7 +82,7 @@ DrawRectangle(game_offscreen_buffer *Buffer,
 
 	// 0x AA RR GG BB
 	uint32 Color = ((RoundReal32ToUInt32(R * 255.0f) << 16) |
-					(RoundReal32ToUInt32(G * 255.0f) << 8) |
+					(RoundReal32ToUInt32(G * 255.0f) << 8)  |
 					(RoundReal32ToUInt32(B * 255.0f) << 0));
 
 	uint8 *Row = ((uint8 *)Buffer->Memory + 
@@ -107,6 +107,9 @@ extern "C" GAME_UPDATE_AND_RENDER(GameUpdateAndRender)
 	game_state *GameState = (game_state *)Memory->PermanentStorage;
 	if(!Memory->IsInitialized)
 	{   
+		GameState->PlayerX = 30.0f;
+		GameState->PlayerY = 30.0f;
+
 		Memory->IsInitialized = true;
 	}
     
@@ -137,9 +140,13 @@ extern "C" GAME_UPDATE_AND_RENDER(GameUpdateAndRender)
 			{
 				dPlayerX = 1.0f;
 			}
+			if(Controller->Back.EndedDown)
+			{
 
-			dPlayerX *= 32.0f;
-			dPlayerY *= 32.0f;
+			}
+
+			dPlayerX *= 64.0f;
+			dPlayerY *= 64.0f;
 
 			GameState->PlayerX += Input->dtForFrame * dPlayerX;
 			GameState->PlayerY += Input->dtForFrame * dPlayerY;
@@ -189,12 +196,11 @@ extern "C" GAME_UPDATE_AND_RENDER(GameUpdateAndRender)
 		}
 	}
 
-	GameState->PlayerX = 30.0f;
-	GameState->PlayerY = 30.0f;
 
 	real32 PlayerR = 1.0f;
 	real32 PlayerG = 1.0f;
 	real32 PlayerB = 0.0f;
+
 	real32 PlayerWidth = 0.75f * TileWidth;
 	real32 PlayerHeight = TileHeight;
 	real32 PlayerLeft = GameState->PlayerX - 0.5f * PlayerWidth;
